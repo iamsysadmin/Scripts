@@ -11,9 +11,9 @@
 
 # Changes made:
 
-# Find intune device by entering devicename and return device ID.
+# Find intune device by entering device name and return device ID.
 # Find categories based on name and return category ID.
-# Check if device exists if not loop enter devicename.
+# Check if device exists if not loop enter device name.
 # Check if category is set after scipt runs.
 # Output changes
 
@@ -88,7 +88,7 @@ function Change-DeviceCategory {
 #Check if devicename exists if not loop to enter devicename again.
 
 do{
-   $DeviceName = Read-Host -Prompt 'Enter DeviceName' 
+   $DeviceName = Read-Host -Prompt 'Enter device name' 
    $DeviceExists = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/managedDevices').value | Where-Object DeviceName -EQ "$DeviceName")
    
    if (-not($DeviceExists).deviceName -eq $DeviceName)
