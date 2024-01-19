@@ -23,7 +23,7 @@ $moduleName = "Microsoft.Graph.Intune"
 if (-not (Get-Module -Name $moduleName)) {
     try {
         Write-Host Module $moduleName not detected starting installing module $moduleName
-        Install-Module $moduleName -Scope AllUsers -Force
+        Install-Module $moduleName -Scope CurrentUser -Force
         Write-Host Module $moduleName installed
     }catch {
         Write-Error "Failed to install $moduleName"
