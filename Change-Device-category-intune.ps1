@@ -181,7 +181,7 @@ Write-Host Category of $DeviceName is changed to $NewCategory -ForegroundColor G
 
 else 
 
-{ Write-Host "The category on device $DevicName has not been changed" -ForegroundColor Red}
+{ Write-Host "The category on device $DeviceName has not been changed" -ForegroundColor Red}
    
    }
 }
