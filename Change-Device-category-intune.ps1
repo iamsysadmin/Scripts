@@ -31,6 +31,8 @@ if (-not (Get-Module -Name $moduleName)) {
         Write-Host Module $moduleName installed
     }catch {
         Write-Error "Failed to install $moduleName"
+        Write-host "Script wil exit!"
+        pause
         Exit
     }
 }
@@ -52,6 +54,8 @@ Try {
 Catch {
     Write-Host "An error occurred:"
     Write-Host $_
+    Write-host "Script wil exit!"
+    pause
 }
 
 $ConnectMsGraph = Connect-MsGraph
