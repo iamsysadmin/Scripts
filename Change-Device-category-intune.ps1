@@ -99,7 +99,7 @@ function Change-DeviceCategory {
 
 } 
 
-#Check if devicename exists if not loop to enter devicename again.
+# Check if devicename exists if not loop to enter devicename again.
 
 do{
    $DeviceName = Read-Host -Prompt 'Enter device name' 
@@ -169,6 +169,8 @@ $AskingForChange = Read-Host -Prompt $PromptMessage
 if ($AskingForChange -eq "Y") 
 
 { 
+
+# Check if category exists if not loop to enter category again.
 
 do{
    $NewCategory = Read-Host -Prompt "Enter the category to assign to the device"
