@@ -1,4 +1,4 @@
-﻿
+
 # Change single device category script
 # auther: Remy Kuster
 # website: www.iamsysadmin.eu
@@ -11,11 +11,14 @@
 
 # Changes made:
 
-# Find intune device by entering device name and return device ID.
+# Find intune device by entering devicename and return device ID.
 # Find categories based on name and return category ID.
-# Check if device exists if not loop enter device name.
-# Check if category is set after scipt runs.
+# Check if device exists if not loop enter devicename.
+# Check if category is set after script runs.
+# Erro handeling on function: Change-DeviceCategory
 # Output changes
+
+$ErrorActionPreference="silentlycontinue"
 
 # First install PowerShell module Microsoft.Graph.Intune if not detected
 
@@ -27,7 +30,6 @@ if (-not (Get-Module -Name $moduleName)) {
         Write-Host Module $moduleName installed
     }catch {
         Write-Error "Failed to install $moduleName"
-        Exit
     }
 }
 
@@ -50,6 +52,7 @@ Catch {
     Write-Host $_
 }
 
+$ConnectMsGraph = Connect-MsGraph
 
 # Color functions to give Write-Output color
 
@@ -68,8 +71,7 @@ function Yellow
     process { Write-Host $_ -ForegroundColor Yellow }
 }
 
-
-
+# Function to change the device category, with error handeling
 
 function Change-DeviceCategory {
 	param(
@@ -82,6 +84,16 @@ function Change-DeviceCategory {
 
     $body = @{ "@odata.id" = "https://graph.microsoft.com/beta/deviceManagement/deviceCategories/$NewCategoryID" }
     Invoke-MSGraphRequest -HttpMethod PUT -Url "deviceManagement/managedDevices/$DeviceID/deviceCategory/`$ref" -Content $body
+
+   if( $error[0].Exception -like "*User is not authorized to perform this operation*")
+
+   {
+
+   write-host User $ConnectMsGraph.UPN is not authorized to perform this operation on device: $DeviceName! -ForegroundColor Red
+   write-host Please check the permissions of the account and try again. -ForegroundColor Red
+   $Error.Clear()
+   
+   }
 
 } 
 
@@ -128,13 +140,13 @@ if ($DeviceCategoryCurrent -notcontains "Unknown")
 
 { 
 
-Write-Host -ForegroundColor Yellow "-------------------------------"
-Write-Host -ForegroundColor Yellow "|      Current category:      |"
-Write-Host -ForegroundColor Yellow "-------------------------------"
+Write-Host -ForegroundColor Yellow "------------------------------------------"
+Write-Host -ForegroundColor Yellow "|      Currently assigned category:      |"
+Write-Host -ForegroundColor Yellow "------------------------------------------"
 Write-Output $DeviceCategoryCurrent | Yellow
 Write-Host
 
-$PromptMessage = "Do you want to change the current category of the device ? (Y/N)" } 
+$PromptMessage = "Do you want to change the currently assigned category of the device? (Y/N)" } 
 
 else 
 
@@ -147,7 +159,7 @@ Write-Host No category assigned
 Write-Host
 
 
-$PromptMessage = "Do you want to add a category to the device ? (Y/N)"}
+$PromptMessage = "Do you want to assign a category to the device ? (Y/N)"}
 
 
 $AskingForChange = Read-Host -Prompt $PromptMessage 
@@ -160,7 +172,10 @@ $NewCategory = Read-Host -Prompt "Enter the category to assign to the device"
 
 $NewCategoryID = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/deviceCategories').value |  Where-Object DisplayName -EQ "$NewCategory" | Select-Object ID).ID 
 
+# Run the function to add or change the category
+
 Change-DeviceCategory -DeviceID $DeviceID -NewCategoryID $NewCategoryID
+
 
 # Check if the assignment of the new category is completed
 
