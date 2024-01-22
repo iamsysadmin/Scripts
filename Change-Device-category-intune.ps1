@@ -7,7 +7,7 @@
 # Thanks to: https://www.reddit.com/r/PowerShell/comments/15loa5f/mg_graph_device_category/
 # Thanks to: https://github.com/JayRHa/Intune-Scripts/blob/main/Change-DeviceCategory/Change-DeviceCategorySingle.ps1
 
-# Origional source used: https://github.com/JayRHa/Intune-Scripts/blob/main/Change-DeviceCategory/Change-DeviceCategorySingle.ps1:
+# Original source used: https://github.com/JayRHa/Intune-Scripts/blob/main/Change-DeviceCategory/Change-DeviceCategorySingle.ps1:
 
 # Changes made:
 
