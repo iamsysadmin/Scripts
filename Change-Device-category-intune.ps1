@@ -14,6 +14,7 @@
 # Find intune device by entering devicename and return device ID.
 # Find categories based on name and return category ID.
 # Check if device exists if not loop enter devicename.
+# Check if category exists if not loop enter category.
 # Check if category is set after script runs.
 # Error handeling in function: Change-DeviceCategory
 # Output changes
@@ -107,13 +108,13 @@ do{
    if (-not($DeviceExists).deviceName -eq $DeviceName)
 
    {
-   Write-Host "Device $DeviceName doesn't exist, please enter a correct device" 
+   Write-Host "Device: $DeviceName doesn't exist, please enter a correct device name" -ForegroundColor Red
    }
 
    else
 
    {
-   Write-Host "Device $DeviceName exists, continue script"
+   Write-Host "Device: $DeviceName exists, continue script" -ForegroundColor Green
 
 
 #Get the device ID
@@ -167,9 +168,26 @@ $AskingForChange = Read-Host -Prompt $PromptMessage
 
 if ($AskingForChange -eq "Y") 
 
-{Write-Host
+{ 
 
-$NewCategory = Read-Host -Prompt "Enter the category to assign to the device" 
+do{
+   $NewCategory = Read-Host -Prompt "Enter the category to assign to the device"
+
+   $CategoryExists = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/deviceCategories').value |  Where-Object DisplayName -EQ "$NewCategory")
+   
+   if (-not($CategoryExists).displayName -eq $NewCategory)
+
+   {
+   Write-Host "Category: $NewCategory doesn't exist, please enter an available category" -ForegroundColor Red 
+   }
+
+   else
+
+   {
+   Write-Host "Category: $NewCategory exists, continue changing category on device" -ForegroundColor Green}}
+
+   Until(($CategoryExists).displayName -like $NewCategory)
+   
 
 $NewCategoryID = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/deviceCategories').value |  Where-Object DisplayName -EQ "$NewCategory" | Select-Object ID).ID 
 
@@ -184,7 +202,7 @@ do {
 
 $DeviceCategoryCurrent = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/managedDevices').value | Where-Object DeviceName -EQ "$DeviceName" | Select-Object DeviceCategoryDisplayName).DeviceCategoryDisplayName
 
-Write-Host Please wait! -ForegroundColor Red
+Write-Host Please wait! -ForegroundColor Yellow
 
 Start-Sleep -Seconds 10
 
