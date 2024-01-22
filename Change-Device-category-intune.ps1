@@ -117,7 +117,7 @@ do{
    Write-Host "Device: $DeviceName exists, continue script" -ForegroundColor Green
 
 
-#Get the device ID
+# Get the device ID
 
 $DeviceID = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/managedDevices').value | Where-Object DeviceName -EQ "$DeviceName" | Select-Object Id).Id  
 
@@ -125,7 +125,7 @@ $DeviceID = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/manag
  
 $DeviceCategoryCurrent = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/managedDevices').value | Where-Object DeviceName -EQ "$DeviceName" | Select-Object DeviceCategoryDisplayName).DeviceCategoryDisplayName 
 
-#Get the categories that are available to choose from and show them
+# Get the categories that are available to choose from and show them
 
 $Categories = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/deviceCategories').value | Select-Object DisplayName).DisplayName
 
@@ -190,6 +190,7 @@ do{
 
    Until(($CategoryExists).displayName -like $NewCategory)
    
+# Get the category ID
 
 $NewCategoryID = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/deviceCategories').value |  Where-Object DisplayName -EQ "$NewCategory" | Select-Object ID).ID 
 
