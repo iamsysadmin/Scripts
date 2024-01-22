@@ -54,7 +54,6 @@ Try {
 Catch {
     Write-Host "An error occurred:" -ForegroundColor Red
     Write-Host $_ -ForegroundColor Red
-    Write-host "Script wil exit!" -ForegroundColor Yellow
     pause
     exit
 }
@@ -99,6 +98,8 @@ function Change-DeviceCategory {
    write-host User $ConnectMsGraph.UPN is not authorized to perform this operation on device: $DeviceName! -ForegroundColor Red
    write-host Please check the permissions of the account and try again. -ForegroundColor Red
    $Error.Clear()
+   pause
+   exit
    
    }
 
@@ -141,7 +142,7 @@ Write-Host -ForegroundColor Yellow "-----------------------------------"
 Write-Output $Categories | Yellow
 Write-Host
 
-#Check if there is a category already assigned to the device
+# Check if there is a category already assigned to the device
 
 if ($DeviceCategoryCurrent -notcontains "Unknown") 
 
@@ -166,7 +167,7 @@ Write-Host No category assigned
 Write-Host
 
 
-$PromptMessage = "Do you want to assign a category to the device ? (Y/N)"}
+$PromptMessage = "Do you want to assign a category to the device? (Y/N)"}
 
 
 $AskingForChange = Read-Host -Prompt $PromptMessage 
@@ -199,6 +200,18 @@ do{
 
 $NewCategoryID = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/deviceCategories').value |  Where-Object DisplayName -EQ "$NewCategory" | Select-Object ID).ID 
 
+# Check if new category isn't already assigned to the device
+
+if ($NewCategory -eq "$DeviceCategoryCurrent") 
+
+{
+  write-host Category $NewCategory is already assigned to device: $DeviceName. -ForegroundColor Red
+  write-host Exiting script. -ForegroundColor Red
+   pause
+   exit
+}
+
+
 # Run the function to add or change the category
 
 Change-DeviceCategory -DeviceID $DeviceID -NewCategoryID $NewCategoryID
@@ -228,7 +241,6 @@ else
 { Write-Host "The category on device $DeviceName has not been changed" -ForegroundColor Red
 
 pause
-
 
 }
 
