@@ -49,13 +49,14 @@ Write-Host Module $moduleName detected no install needed
 
 Try {
 
-    Connect-MsGraph -Quiet -ErrorAction Stop
+    Connect-MsGraph -Quiet -ErrorAction Continue
 }
 Catch {
-    Write-Host "An error occurred:"
-    Write-Host $_
-    Write-host "Script wil exit!"
+    Write-Host "An error occurred:" -ForegroundColor Red
+    Write-Host $_ -ForegroundColor Red
+    Write-host "Script wil exit!" -ForegroundColor Yellow
     pause
+    exit
 }
 
 $ConnectMsGraph = Connect-MsGraph
