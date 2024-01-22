@@ -15,7 +15,7 @@
 # Find categories based on name and return category ID.
 # Check if device exists if not loop enter devicename.
 # Check if category is set after script runs.
-# Erro handeling on function: Change-DeviceCategory
+# Error handeling in function: Change-DeviceCategory
 # Output changes
 
 $ErrorActionPreference="silentlycontinue"
@@ -30,6 +30,7 @@ if (-not (Get-Module -Name $moduleName)) {
         Write-Host Module $moduleName installed
     }catch {
         Write-Error "Failed to install $moduleName"
+        Exit
     }
 }
 
@@ -191,12 +192,20 @@ Start-Sleep -Seconds 10
 
 Write-Host Category of $DeviceName is changed to $NewCategory -ForegroundColor Green
 
+pause
+
 } 
 
 
 else 
 
-{ Write-Host "The category on device $DeviceName has not been changed" -ForegroundColor Red}
+{ Write-Host "The category on device $DeviceName has not been changed" -ForegroundColor Red
+
+pause
+
+
+}
+
    
    }
 }
