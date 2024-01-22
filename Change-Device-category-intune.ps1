@@ -1,6 +1,6 @@
 
 # Change single device category script
-# auther: Remy Kuster
+# author: Remy Kuster
 # website: www.iamsysadmin.eu
 
 # Thanks to: https://jannikreinhard.com/2023/02/12/how-to-create-powershell-script-to-automate-tasks-in-intune/
