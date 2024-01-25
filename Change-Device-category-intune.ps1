@@ -224,7 +224,7 @@ Change-DeviceCategory -DeviceID $DeviceID -NewCategoryID $NewCategoryID
 
 do {
 
-$DeviceCategoryCurrent = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/managedDevices').value | Where-Object DeviceName -EQ "$DeviceName" | Select-Object DeviceCategoryDisplayName).DeviceCategoryDisplayName
+$DeviceCategoryCurrent = ( Get-IntuneManagedDevice | Where-Object DeviceName -EQ "$DeviceName" | Select-Object DeviceCategoryDisplayName).DeviceCategoryDisplayName
 
 Write-Host Please wait! -ForegroundColor Yellow
 
