@@ -2,6 +2,7 @@
 # Change single device category script
 # author: Remy Kuster
 # website: www.iamsysadmin.eu
+# Version: 1.1
 
 # Thanks to: https://jannikreinhard.com/2023/02/12/how-to-create-powershell-script-to-automate-tasks-in-intune/
 # Thanks to: https://www.reddit.com/r/PowerShell/comments/15loa5f/mg_graph_device_category/
@@ -18,6 +19,8 @@
 # Check if category is set after script runs.
 # Error handeling in function: Change-DeviceCategory
 # Output changes
+
+# 25-01-2024: Added Graph Intune cmdlets
 
 $ErrorActionPreference="silentlycontinue"
 
@@ -109,7 +112,7 @@ function Change-DeviceCategory {
 
 do{
    $DeviceName = Read-Host -Prompt 'Enter device name' 
-   $DeviceExists = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/managedDevices').value | Where-Object DeviceName -EQ "$DeviceName")
+   $DeviceExists = (Get-IntuneManagedDevice | Where-Object DeviceName -EQ "$DeviceName")
    
    if (-not($DeviceExists).deviceName -eq $DeviceName)
 
@@ -125,15 +128,15 @@ do{
 
 # Get the device ID
 
-$DeviceID = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/managedDevices').value | Where-Object DeviceName -EQ "$DeviceName" | Select-Object Id).Id  
+$DeviceID = ($DeviceExists).Id
 
 #Get the currently assigned category
  
-$DeviceCategoryCurrent = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/managedDevices').value | Where-Object DeviceName -EQ "$DeviceName" | Select-Object DeviceCategoryDisplayName).DeviceCategoryDisplayName 
+$DeviceCategoryCurrent = ($DeviceExists | Select-Object DeviceCategoryDisplayName).DeviceCategoryDisplayName 
 
 # Get the categories that are available to choose from and show them
 
-$Categories = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/deviceCategories').value | Select-Object DisplayName).DisplayName
+$Categories = (Get-IntuneDeviceCategory | Select-Object DisplayName).DisplayName
 
 
 Write-Host -ForegroundColor Yellow "-----------------------------------"
@@ -181,7 +184,7 @@ if ($AskingForChange -eq "Y")
 do{
    $NewCategory = Read-Host -Prompt "Enter the category to assign to the device"
 
-   $CategoryExists = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/deviceCategories').value |  Where-Object DisplayName -EQ "$NewCategory")
+   $CategoryExists = (Get-IntuneDeviceCategory |  Where-Object DisplayName -EQ "$NewCategory")
    
    if (-not($CategoryExists).displayName -eq $NewCategory)
 
@@ -198,7 +201,7 @@ do{
    
 # Get the category ID
 
-$NewCategoryID = ((Invoke-MSGraphRequest -HttpMethod GET -Url 'deviceManagement/deviceCategories').value |  Where-Object DisplayName -EQ "$NewCategory" | Select-Object ID).ID 
+$NewCategoryID = (Get-IntuneDeviceCategory | Where-Object DisplayName -EQ "$NewCategory" | Select-Object ID).ID 
 
 # Check if new category isn't already assigned to the device
 
@@ -249,3 +252,4 @@ pause
 }
 
 Until(($DeviceExists).deviceName -like $DeviceName)
+
