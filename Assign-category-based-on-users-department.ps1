@@ -3,7 +3,7 @@
 # website: www.iamsysadmin.eu
 # Version: 1.0
 
-# This script allows you to use a dynamic user group and take the members UPN to compair it with intune managed devices and the assigned upn
+# This script allows you to use a dynamic user group and take the members UPN to compare it with intune managed devices and the assigned upn
 # and then auto assign a device category to the devices of the users of the department. In my case We had a dynamic user group of a
 # specific department and we wanted to automaticly assign the category of that department to the devices these users were using.
 
