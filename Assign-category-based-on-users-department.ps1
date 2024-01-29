@@ -15,9 +15,9 @@ Connect-MSGraph
 
 $ErrorActionPreference="silentlycontinue" # If you don't want the errors to be supressed change this into Continue, stop or Inquire
 
-$NewCategoryID = "b561e58c-7dfe-4543-a654-8171d277ba63" #  enter the CategoryID you can get the CategoryID by running the cmdlet: Get-IntuneDeviceCategory
+$NewCategoryID = "" # enter the CategoryID you can get the CategoryID by running the cmdlet: Get-IntuneDeviceCategory
 
-$EntraIDGroupID = "b561e58c-7dfe-4543-a654-8171d277ba63" # dccn group:  b561e58c-7dfe-4543-a654-8171d277ba63 enter the EntraID dynamic group ID you want to use the members of
+$EntraIDGroupID = "" # enter the EntraID dynamic group ID you want to use the members of
 
 
 function Change-DeviceCategory {
