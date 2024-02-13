@@ -1,4 +1,4 @@
-# Change assign device categorie to macOS devices based on User department
+# Change assign device category to macOS devices based on User department
 # author: Remy Kuster
 # website: www.iamsysadmin.eu
 # Version: 1.0
