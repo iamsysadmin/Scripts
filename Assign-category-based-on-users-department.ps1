@@ -7,8 +7,6 @@
 # Then the script assigns the new device category to the devices of the users of the department if the user has got an Intune managed device. 
 # In my case We had a dynamic user group of a specific department and we wanted to automaticly assign the category of that department to the macOS devices of these users.
 
-Set-ExecutionPolicy bypass -scope CurrentUser -force
-
 $moduleName = "Microsoft.Graph.Intune"
 if (-not (Get-Module -Name $moduleName)) {
     try {
