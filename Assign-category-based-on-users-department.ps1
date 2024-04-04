@@ -1,11 +1,24 @@
-# Change assign device category to macOS devices based on User department
+# Change assign device category to macOS or Windows devices based on User department
 # author: Remy Kuster
 # website: www.iamsysadmin.eu
-# Version: 1.0
+# Version: 2.0
+# Added parameters so script doesn't have to be changed every time
+# Changed the flow of the scipt to be more efficient: First check Intune managed devices then the assigned primary user and the department of the user.
 
-# This script allows you to use a EntraID user group and take the members UPN to compare it with intune managed devices and the assigned upn.
-# Then the script assigns the new device category to the devices of the users of the department if the user has got an Intune managed device. 
-# In my case We had a dynamic user group of a specific department and we wanted to automatically assign the category of that department to the macOS devices of these users.
+# This script allows you to check the intune managed devices and the primary users upn. 
+# Then check if the user is a member of the department and assign the correct device (department) category to the device.
+# Usage: Assign-device-category-based-on-users-department.ps1 -NewCategoryName [Value] -OperatingSystem (macOS or Windows) -$Department [Value] (users department)
+
+Param(
+     [Parameter(Mandatory)]
+     [string]$NewCategoryName,
+
+     [Parameter(Mandatory)]
+     [string]$OperatingSystem,
+
+     [Parameter(Mandatory)]
+     [string]$Department
+ )
 
 $moduleName = "Microsoft.Graph.Intune"
 if (-not (Get-Module -Name $moduleName)) {
@@ -46,17 +59,9 @@ $ConnectMsGraph = Connect-MsGraph
 
 $ErrorActionPreference= "continue" # If you don't want the errors to be supressed change this into Continue, stop or Inquire
 
-$NewCategoryName = "IT-Services" # Enter the Device Category Name you want to set.
-
-$EntraIDGroupName = "F-AZ-Intune-Information&Library-Services-Employees-DU" # Enter the EntraID dynamic user groupname based on department
-
 $NewCategoryID = (Get-IntuneDeviceCategory | Where-Object DisplayName -EQ "$NewCategoryName" | Select-Object ID).ID 
 
-$EntraIDGroupID = (Get-AADGroup | Get-MSGraphAllPages | Where-Object Displayname -EQ $EntraIDGroupName).ID
-
-$EmployeesUPN = Get-AADGroupMember -groupId $EntraIDGroupID | Get-MSGraphAllPages | Select-Object UserPrincipalName 
-
-$OperatingSystem = "macOS" # Enter the Operatingsystem the device must have can be macOS or Windows or Linux
+$EmployeesUPN = (Get-IntuneManagedDevice | Where-Object OperatingSystem -EQ $OperatingSystem | Select-Object -Property DeviceName,ID,UserPrincipalName)
 
 function Change-DeviceCategory {
 	param(
@@ -82,31 +87,31 @@ function Change-DeviceCategory {
 
 } 
 
-# Check for every user based on theire UPN if there is a Intune managed macOS device assigned to the user, if so assign the new category to the device
+# Check for every user based on the UPN if there is a Intune managed macOS device assigned to the user, if so assign the new category to the device
 
 ForEach ($array in $EmployeesUPN)
 
 {
 
-$out1 = Get-IntuneManagedDevice | Where-Object UserPrincipalName -eq $array.userPrincipalName | Select-Object -Property DeviceName,ID,OperatingSystem
+$UPN = $array.userPrincipalName
 
 
-# Run the function to add or change the category IF a managed device is found for the User AND if OS is macOS
+# Run the function to add or change the category IF the user is member of the department.
 
-if (($out1.id) -ne $null -and ($out1.operatingSystem) -match $OperatingSystem) 
+if ((Invoke-MSGraphRequest -Url "https://graph.microsoft.com/beta/users/$UPN" -HttpMethod Get | Select-Object Department) -match $Department) 
 
 {  
 
-Write-Host Intune managed macOS device found: $out1.deviceName User: $array.userPrincipalName -ForegroundColor Green 
+Write-Host User $UPN is member of department $Department -ForegroundColor Green 
 
 # Check if the new category isn't already assigned to the device
 
-$DeviceCategoryCurrent = ( Get-IntuneManagedDevice | Where-Object DeviceName -EQ $out1.deviceName | Select-Object DeviceCategoryDisplayName).DeviceCategoryDisplayName
+$DeviceCategoryCurrent = ( Get-IntuneManagedDevice | Where-Object DeviceName -EQ $array.deviceName | Select-Object DeviceCategoryDisplayName).DeviceCategoryDisplayName
 
 if ($NewCategoryName -eq "$DeviceCategoryCurrent") 
 
 {
-  write-host Category $NewCategoryName is already assigned to device: $out1.deviceName -ForegroundColor Red
+  write-host Category $NewCategoryName is already assigned to device: $array.deviceName -ForegroundColor Red
   
 }
 
@@ -114,15 +119,16 @@ else
 
 {
 
-Write-host Category $NewCategoryName is NOT assigned to device: $out1.deviceName -ForegroundColor Yellow
+Write-host Category $NewCategoryName is NOT assigned to device: $array.deviceName -ForegroundColor Yellow
+Write-host Adding category $NewCategoryName to device: $array.deviceName -ForegroundColor Yellow
 
-Change-DeviceCategory -DeviceID ($out1).ID -NewCategoryID $NewCategoryID
+Change-DeviceCategory -DeviceID ($array).ID -NewCategoryID $NewCategoryID
 
 # Check if the assignment of the new category is completed
 
 do {
 
-$DeviceCategoryCurrent = ( Get-IntuneManagedDevice | Where-Object DeviceName -EQ $out1.deviceName | Select-Object DeviceCategoryDisplayName).DeviceCategoryDisplayName
+$DeviceCategoryCurrent = ( Get-IntuneManagedDevice | Where-Object DeviceName -EQ $array.deviceName | Select-Object DeviceCategoryDisplayName).DeviceCategoryDisplayName
 
 Write-Host Please wait! -ForegroundColor Yellow
 
@@ -132,9 +138,17 @@ Start-Sleep -Seconds 10
 
 until ($DeviceCategoryCurrent-like $NewCategoryName)
 
-Write-Host Category of $out1.deviceName is changed to $NewCategoryName -ForegroundColor Green
+Write-Host Category of $array.deviceName is changed to $NewCategoryName -ForegroundColor Green
 
 }
+
+}
+
+else
+
+{
+
+Write-Host User $UPN is NOT member of department $Department so category: $NewCategoryName not assigned to Device: $array.deviceName -ForegroundColor Red
 
 }
 
