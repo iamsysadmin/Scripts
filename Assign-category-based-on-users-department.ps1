@@ -7,7 +7,7 @@
 
 # This script allows you to check the intune managed devices and the primary users upn. 
 # Then check if the user is a member of the department and assign the correct device (department) category to the device.
-# Usage: Assign-device-category-based-on-users-department.ps1 -NewCategoryName [Value] -OperatingSystem (macOS or Windows) -$Department [Value] (users department)
+# Usage: Assign-device-category-based-on-users-department.ps1 -NewCategoryName [Value] -OperatingSystem (macOS or Windows) -Department [Value] (users department)
 
 Param(
      [Parameter(Mandatory)]
