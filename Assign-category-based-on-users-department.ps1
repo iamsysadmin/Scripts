@@ -63,6 +63,17 @@ $NewCategoryID = (Get-IntuneDeviceCategory | Where-Object DisplayName -EQ "$NewC
 
 $EmployeesUPN = (Get-IntuneManagedDevice | Where-Object OperatingSystem -EQ $OperatingSystem | Select-Object -Property DeviceName,ID,UserPrincipalName)
 
+if (($EmployeesUPN) -eq $null)
+
+{
+
+write-host No users found with Managed Intune device with operatingsystem:$OperatingSystem -ForegroundColor Red
+
+pause
+exit
+
+}
+
 function Change-DeviceCategory {
 	param(
 		[Parameter(Mandatory)]
