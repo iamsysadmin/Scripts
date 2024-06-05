@@ -5,11 +5,12 @@
 $ApplicationMSIGUID = "{A7AB73A3-CB10-4AA5-9D38-6AEFFBDE4C91}"
 
 Stop-Process -Name OUTLOOK -Force
+Stop-Process -Name ms-teams -Force
 
 
 Start-Process msiexec.exe -wait -ArgumentList "/f $ApplicationMSIGUID /quiet /norestart" | Out-Null
 
-Stop-Process -Name ms-teams -Force
+
 Start-Process -FilePath "C:\Program Files\WindowsApps\MSTeams_24102.2223.2870.9480_x64__8wekyb3d8bbwe\ms-teams.exe"
 
 Start-Sleep 10
